@@ -4,31 +4,30 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-from datetime import datetime
 
 # ---------------------------------------------------------
-# Page Config & Glassmorphic Black Theme
+# Page Configuration
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Apex Bullseye AI | Stock & IPO Intelligence",
-    page_icon="📈",
+    page_title="Apex Bharat Market AI | Indian Stock Terminal",
+    page_icon="🇮🇳",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ---------------------------------------------------------
-# Custom CSS: High-End OLED Black, Glowing Red/Green Accents & Animations
+# Modern Minimalist White Aesthetic CSS
 # ---------------------------------------------------------
 st.markdown("""
 <style>
-    /* Hide Streamlit Chrome Elements */
+    /* Hide Streamlit Default Chrome */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     .stAppDeployButton {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
     [data-testid="stStatusWidget"] {display: none !important;}
 
-    /* Ensure Sidebar Expand Button is always visible */
+    /* Sidebar Collapse/Expand Toggle Controls */
     header[data-testid="stHeader"] {
         background: transparent !important;
         z-index: 99999 !important;
@@ -36,107 +35,103 @@ st.markdown("""
     [data-testid="stSidebarCollapsedControl"] {
         visibility: visible !important;
         display: flex !important;
-        color: #00ffcc !important;
-        background: rgba(20, 20, 25, 0.8) !important;
-        border: 1px solid rgba(0, 255, 204, 0.3) !important;
+        color: #0f172a !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
         border-radius: 8px !important;
         margin: 10px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
     }
 
-    /* Pure OLED Dark Background */
+    /* Light Minimalist Background */
     .stApp {
-        background: radial-gradient(circle at 50% 10%, #0a0d14 0%, #030407 60%, #000000 100%);
-        color: #e2e8f0;
+        background-color: #f8fafc;
+        color: #0f172a;
         font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    }
-
-    /* Keyframe Animations */
-    @keyframes pulse-green {
-        0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
-        70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-    @keyframes pulse-red {
-        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
-        70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
 
     /* Title Styling */
     .brand-title {
-        font-size: 2.4rem;
+        font-size: 2.2rem;
         font-weight: 900;
-        letter-spacing: -1px;
-        background: linear-gradient(90deg, #10b981 0%, #38bdf8 50%, #6366f1 100%);
+        letter-spacing: -0.8px;
+        background: linear-gradient(90deg, #059669 0%, #2563eb 50%, #7c3aed 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
     }
 
-    /* Cards */
-    .glass-card {
-        background: rgba(15, 23, 42, 0.65);
-        backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+    /* Clean Light Cards */
+    .glass-card-light {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         border-radius: 16px;
-        padding: 24px;
+        padding: 20px 24px;
         margin-bottom: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
     }
 
-    /* Recommendation Badges */
+    /* Profit & Loss Badges */
     .badge-bullish {
-        background: rgba(16, 185, 129, 0.15);
+        background: #ecfdf5;
         border: 1px solid #10b981;
-        color: #10b981;
-        padding: 10px 18px;
-        border-radius: 30px;
+        color: #047857;
+        padding: 8px 18px;
+        border-radius: 20px;
         font-weight: 800;
         display: inline-block;
-        animation: pulse-green 2s infinite;
-        letter-spacing: 0.5px;
+        font-size: 0.9rem;
     }
     .badge-bearish {
-        background: rgba(239, 68, 68, 0.15);
+        background: #fef2f2;
         border: 1px solid #ef4444;
-        color: #ef4444;
-        padding: 10px 18px;
-        border-radius: 30px;
+        color: #b91c1c;
+        padding: 8px 18px;
+        border-radius: 20px;
         font-weight: 800;
         display: inline-block;
-        animation: pulse-red 2s infinite;
-        letter-spacing: 0.5px;
+        font-size: 0.9rem;
     }
     .badge-neutral {
-        background: rgba(245, 158, 11, 0.15);
+        background: #fffbeb;
         border: 1px solid #f59e0b;
-        color: #f59e0b;
-        padding: 10px 18px;
-        border-radius: 30px;
+        color: #b45309;
+        padding: 8px 18px;
+        border-radius: 20px;
         font-weight: 800;
         display: inline-block;
+        font-size: 0.9rem;
     }
 
-    /* Stat Highlight Boxes */
-    .stat-profit {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 78, 59, 0.2) 100%);
-        border: 1px solid rgba(16, 185, 129, 0.3);
-        border-radius: 14px;
-        padding: 16px;
-        color: #34d399;
+    /* Tinted Signal Containers */
+    .stat-profit-light {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 16px;
+        padding: 20px;
+        color: #166534;
+        margin-bottom: 20px;
     }
-    .stat-loss {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(127, 29, 29, 0.2) 100%);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-radius: 14px;
-        padding: 16px;
-        color: #f87171;
+    .stat-loss-light {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 16px;
+        padding: 20px;
+        color: #991b1b;
+        margin-bottom: 20px;
+    }
+    .stat-neutral-light {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 20px;
+        color: #0f172a;
+        margin-bottom: 20px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# Security Access Lock Screen
+# Security Lock Screen (Password Authentication)
 # ---------------------------------------------------------
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
@@ -145,31 +140,51 @@ if not st.session_state["authenticated"]:
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        st.markdown('<div class="brand-title" style="text-align: center;">⚡ BULLSEYE AI</div>', unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #94a3b8;'>Real-time Stock Analytics & IPO Intelligence Terminal</p>", unsafe_allow_html=True)
+        st.markdown('<div class="brand-title" style="text-align: center;">🇮🇳 APEX BHARAT AI</div>', unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #64748b; font-weight:500;'>Indian Stock Intelligence & Wealth Analytics Terminal</p>", unsafe_allow_html=True)
         
         st.markdown("""
-        <div class="glass-card" style="text-align: center;">
-            <h4 style="margin-bottom: 12px;">🔒 Terminal Authentication Required</h4>
-            <p style="color: #64748b; font-size: 0.85rem;">Authorized institutional personnel only.</p>
+        <div class="glass-card-light" style="text-align: center;">
+            <h4 style="margin-bottom: 10px; font-weight:800; color:#0f172a;">🔒 Secure Terminal Access</h4>
+            <p style="color: #64748b; font-size: 0.88rem;">Enter authorization password to launch market analytics.</p>
         </div>
         """, unsafe_allow_html=True)
         
-        pwd = st.text_input("", type="password", placeholder="Enter Terminal Password...", key="pwd")
-        if st.button("🔓 Access Intelligence Engine", type="primary", use_container_width=True):
+        pwd = st.text_input("", type="password", placeholder="Enter Password...", key="pwd")
+        if st.button("🚀 Unlock Terminal Engine", type="primary", use_container_width=True):
             if pwd.strip() == "BULLSEYE$2026":
                 st.session_state["authenticated"] = True
                 st.rerun()
             else:
-                st.error("❌ Access Denied: Invalid Security Key")
+                st.error("❌ Access Denied: Invalid Terminal Password")
         st.markdown("<br>", unsafe_allow_html=True)
     st.stop()
 
 # ---------------------------------------------------------
-# Sidebar Controls & Lock Session
+# Indian Ticker Auto-Formatter Helper
 # ---------------------------------------------------------
-st.sidebar.markdown('<div class="brand-title" style="font-size: 1.5rem;">⚡ BULLSEYE AI</div>', unsafe_allow_html=True)
-st.sidebar.caption("Real-Time Financial Intelligence Engine")
+def format_indian_ticker(user_input):
+    clean = user_input.strip().upper()
+    if not clean:
+        return "RELIANCE.NS"
+    # Auto-append .NS for National Stock Exchange if no exchange suffix provided
+    if not (clean.endswith(".NS") or clean.endswith(".BO")):
+        clean += ".NS"
+    return clean
+
+def format_inr(val):
+    if abs(val) >= 10000007:
+        return f"₹{val/10000000:,.2f} Cr"
+    elif abs(val) >= 100005:
+        return f"₹{val/100000:,.2f} Lakh"
+    else:
+        return f"₹{val:,.2f}"
+
+# ---------------------------------------------------------
+# Sidebar Navigation & Quick Stock Shortcuts
+# ---------------------------------------------------------
+st.sidebar.markdown('<div class="brand-title" style="font-size: 1.4rem;">🇮🇳 APEX BHARAT</div>', unsafe_allow_html=True)
+st.sidebar.caption("NSE & BSE Real-Time Financial Intelligence")
 
 if st.sidebar.button("🔒 Lock Terminal", use_container_width=True):
     st.session_state["authenticated"] = False
@@ -177,32 +192,31 @@ if st.sidebar.button("🔒 Lock Terminal", use_container_width=True):
 
 st.sidebar.markdown("---")
 navigation = st.sidebar.radio(
-    "Select Intelligence Module:",
-    ["📈 Live Stock Analyzer & AI Signals", "🚀 IPO Tracker & GMP Suggestions", "💰 Interactive Wealth Planner"]
+    "Select Market Module:",
+    ["📈 NSE/BSE Live Stock Analyzer", "🚀 Indian IPO Tracker & GMP", "💰 INR SIP & Wealth Planner"]
 )
 
 # ---------------------------------------------------------
-# Helper Engine: Technical Analysis & AI Reasoning
+# Data Engine: Technical Analysis & Metrics
 # ---------------------------------------------------------
 @st.cache_data(ttl=60)
-def fetch_stock_data(ticker_symbol, timeframe):
+def fetch_indian_stock_data(ticker_symbol, period):
     try:
         stock = yf.Ticker(ticker_symbol)
-        df = stock.history(period=timeframe)
+        df = stock.history(period=period)
         info = stock.info
         return df, info
     except Exception:
         return None, None
 
-def calculate_technical_signals(df):
-    if df is None or len(df) < 14:
+def calculate_indicators(df):
+    if df is None or len(df) < 10:
         return None
     
-    # Simple Moving Averages
     df['SMA_50'] = df['Close'].rolling(window=min(50, len(df))).mean()
     df['SMA_200'] = df['Close'].rolling(window=min(200, len(df))).mean()
     
-    # RSI Calculation
+    # Relative Strength Index (RSI)
     delta = df['Close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
     loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
@@ -218,32 +232,44 @@ def calculate_technical_signals(df):
     return df
 
 # ---------------------------------------------------------
-# MODULE 1: Live Stock Analyzer & AI Signals
+# MODULE 1: NSE/BSE Live Stock Analyzer
 # ---------------------------------------------------------
-if navigation == "📈 Live Stock Analyzer & AI Signals":
-    st.markdown('<div class="brand-title">📈 Real-Time Stock Analyzer</div>', unsafe_allow_html=True)
-    st.caption("AI-powered technical evaluation, dynamic chart signals, and direct buy/sell reasoning.")
+if navigation == "📈 NSE/BSE Live Stock Analyzer":
+    st.markdown('<div class="brand-title">📈 NSE & BSE Live Stock Analyzer</div>', unsafe_allow_html=True)
+    st.caption("AI technical analysis, real-time prices in Rupees (₹), and investment reasoning for Indian equities.")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    col_input1, col_input2 = st.columns([2, 1])
-    with col_input1:
-        ticker = st.text_input("Enter Stock Ticker Symbol (e.g., NVDA, AAPL, TSLA, MSFT, RELIANCE.NS):", value="NVDA").upper().strip()
-    with col_input2:
+    # Quick Shortcuts for Top Indian Stocks
+    st.markdown("<b>⚡ Popular Shortcuts:</b>", unsafe_allow_html=True)
+    shortcut_cols = st.columns(8)
+    shortcuts = ["RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", "ZOMATO", "SBIN", "ICICIBANK"]
+    
+    selected_shortcut = None
+    for idx, sc in enumerate(shortcuts):
+        if shortcut_cols[idx].button(sc, use_container_width=True):
+            selected_shortcut = sc
+            
+    col_in1, col_in2 = st.columns([2, 1])
+    with col_in1:
+        default_sym = selected_shortcut if selected_shortcut else "RELIANCE"
+        user_ticker = st.text_input("Enter Any Indian Stock Ticker (e.g., RELIANCE, TCS, ZOMATO, TATASTEEL, SUZLON):", value=default_sym)
+        formatted_ticker = format_indian_ticker(user_ticker)
+    with col_in2:
         period = st.selectbox("Select Timeframe:", ["1mo", "3mo", "6mo", "1y", "2y", "5y"], index=3)
         
-    with st.spinner(f"Fetching real-time market data for {ticker}..."):
-        df, info = fetch_stock_data(ticker, period)
+    with st.spinner(f"Fetching live market prices for {formatted_ticker}..."):
+        df, info = fetch_indian_stock_data(formatted_ticker, period)
         
     if df is None or df.empty:
-        st.error(f"⚠️ Unable to fetch market data for symbol **'{ticker}'**. Please check the ticker name and retry.")
+        st.error(f"⚠️ Unable to load market data for **'{user_ticker}'**. Please ensure the company symbol is valid on NSE/BSE.")
     else:
-        df = calculate_technical_signals(df)
+        df = calculate_indicators(df)
         latest = df.iloc[-1]
         prev_close = df.iloc[-2]['Close'] if len(df) > 1 else latest['Close']
         price_change = latest['Close'] - prev_close
         pct_change = (price_change / prev_close) * 100
         
-        # Determine AI Signal & Reasoning
+        # Technical Signal Rules
         rsi_val = latest['RSI'] if 'RSI' in df.columns and not np.isnan(latest['RSI']) else 50
         sma_50 = latest['SMA_50'] if 'SMA_50' in df.columns and not np.isnan(latest['SMA_50']) else latest['Close']
         
@@ -252,97 +278,96 @@ if navigation == "📈 Live Stock Analyzer & AI Signals":
         
         if rsi_val < 35:
             bull_score += 2
-            reasons.append("🟢 **RSI Oversold:** Indicates selling pressure is exhausted, signaling high potential for a bullish reversal.")
+            reasons.append(f"🟢 **RSI Oversold ({rsi_val:.1f}):** Selling pressure appears exhausted. Strong historical bounce zone for Indian retail & institutional buyers.")
         elif rsi_val > 70:
             bull_score -= 2
-            reasons.append("🔴 **RSI Overbought:** Stock is currently overextended; short-term pullback risk is elevated.")
+            reasons.append(f"🔴 **RSI Overbought ({rsi_val:.1f}):** Stock is trading at short-term premium. Profit-taking risk is elevated.")
         else:
-            reasons.append("🟡 **Neutral Momentum:** RSI is floating in balanced mid-range territory.")
+            reasons.append(f"🟡 **Neutral RSI ({rsi_val:.1f}):** Stock momentum is balanced without extreme overbought/oversold conditions.")
             
         if latest['Close'] > sma_50:
             bull_score += 2
-            reasons.append(f"🟢 **Bullish Trend:** Trading above 50-day Moving Average (${sma_50:.2f}).")
+            reasons.append(f"🟢 **Bullish Trend Alignment:** Current price (₹{latest['Close']:,.2f}) is holding above the 50-day moving average (₹{sma_50:,.2f}).")
         else:
             bull_score -= 2
-            reasons.append(f"🔴 **Bearish Pressure:** Trading below 50-day Moving Average (${sma_50:.2f}).")
+            reasons.append(f"🔴 **Bearish Trend Alignment:** Current price (₹{latest['Close']:,.2f}) is trading below its 50-day moving average (₹{sma_50:,.2f}).")
             
         if price_change > 0:
             bull_score += 1
-            
+
+        # Verdict Classification
         if bull_score >= 2:
             signal_badge = '<div class="badge-bullish">🚀 STRONG BUY / BULLISH</div>'
-            projected_return = f"+{abs(pct_change * 1.8 + 8.5):.1f}% Target upside potential"
-            stat_style = "stat-profit"
+            projected_return = f"+{abs(pct_change * 1.6 + 6.5):.1f}% Target upside projection"
+            card_class = "stat-profit-light"
         elif bull_score <= -2:
-            signal_badge = '<div class="badge-bearish">⚠️ HIGH RISK / BEARISH / AVOID</div>'
-            projected_return = f"-{abs(pct_change * 1.5 + 5.2):.1f}% Downside risk potential"
-            stat_style = "stat-loss"
+            signal_badge = '<div class="badge-bearish">⚠️ HIGH RISK / BEARISH</div>'
+            projected_return = f"-{abs(pct_change * 1.4 + 4.8):.1f}% Downside pullback risk"
+            card_class = "stat-loss-light"
         else:
-            signal_badge = '<div class="badge-neutral">⏸️ HOLD / NEUTRAL WATCH</div>'
-            projected_return = "±3.5% Consolidation range"
-            stat_style = "glass-card"
+            signal_badge = '<div class="badge-neutral">⏸️ HOLD / CONSOLIDATION</div>'
+            projected_return = "±2.8% Side-ways range projection"
+            card_class = "stat-neutral-light"
 
-        # KPI Header Cards
-        m1, m2, m3, m4 = st.columns(4)
-        with m1:
+        # KPI Display Cards
+        k1, k2, k3, k4 = st.columns(4)
+        with k1:
             st.markdown(f"""
-            <div class="glass-card">
-                <span style="color:#94a3b8; font-size:0.8rem; font-weight:700;">CURRENT PRICE</span>
-                <h2 style="font-weight:800; margin-top:4px; font-size:1.8rem;">${latest['Close']:,.2f}</h2>
+            <div class="glass-card-light">
+                <span style="color:#64748b; font-size:0.78rem; font-weight:700;">CURRENT NSE/BSE PRICE</span>
+                <h2 style="font-weight:900; margin-top:4px; font-size:1.8rem; color:#0f172a;">₹{latest['Close']:,.2f}</h2>
             </div>
             """, unsafe_allow_html=True)
-        with m2:
+        with k2:
             color_hex = "#10b981" if price_change >= 0 else "#ef4444"
             st.markdown(f"""
-            <div class="glass-card">
-                <span style="color:#94a3b8; font-size:0.8rem; font-weight:700;">DAY PERFORMANCE</span>
-                <h2 style="font-weight:800; margin-top:4px; color:{color_hex}; font-size:1.8rem;">
+            <div class="glass-card-light">
+                <span style="color:#64748b; font-size:0.78rem; font-weight:700;">DAY CHANGE</span>
+                <h2 style="font-weight:900; margin-top:4px; color:{color_hex}; font-size:1.8rem;">
                     {price_change:+.2f} ({pct_change:+.2f}%)
                 </h2>
             </div>
             """, unsafe_allow_html=True)
-        with m3:
+        with k3:
             st.markdown(f"""
-            <div class="glass-card">
-                <span style="color:#94a3b8; font-size:0.8rem; font-weight:700;">RSI (14-DAY INDEX)</span>
-                <h2 style="font-weight:800; margin-top:4px; font-size:1.8rem;">{rsi_val:.1f}</h2>
+            <div class="glass-card-light">
+                <span style="color:#64748b; font-size:0.78rem; font-weight:700;">RSI STRENGTH</span>
+                <h2 style="font-weight:900; margin-top:4px; font-size:1.8rem; color:#0f172a;">{rsi_val:.1f}</h2>
             </div>
             """, unsafe_allow_html=True)
-        with m4:
+        with k4:
             st.markdown(f"""
-            <div class="glass-card">
-                <span style="color:#94a3b8; font-size:0.8rem; font-weight:700;">VOLUME</span>
-                <h2 style="font-weight:800; margin-top:4px; font-size:1.8rem;">{latest['Volume']:,}</h2>
+            <div class="glass-card-light">
+                <span style="color:#64748b; font-size:0.78rem; font-weight:700;">TRADED VOLUME</span>
+                <h2 style="font-weight:900; margin-top:4px; font-size:1.8rem; color:#0f172a;">{latest['Volume']:,}</h2>
             </div>
             """, unsafe_allow_html=True)
 
-        # AI Recommendation Section
+        # Signal Rationale Box
         st.markdown(f"""
-        <div class="{stat_style}" style="margin-bottom: 24px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="{card_class}">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <div>
-                    <h3 style="margin-bottom: 4px; font-weight: 800;">AI Investment Decision & Signal Verdict</h3>
-                    <p style="font-weight:600; font-size:1.05rem;">Projected Estimate: <b>{projected_return}</b></p>
+                    <h3 style="margin-bottom:2px; font-weight:800;">AI Investment Signal for {formatted_ticker.replace('.NS','')}</h3>
+                    <p style="font-weight:600; font-size:1rem; margin-bottom:0;">Projected Target: <b>{projected_return}</b></p>
                 </div>
                 <div>{signal_badge}</div>
             </div>
-            <hr style="border-color: rgba(255,255,255,0.1); margin: 16px 0;">
-            <h5 style="margin-bottom:8px; font-weight:700;">Why Invest or Avoid This Stock? (Detailed Rationale)</h5>
+            <hr style="border-color: rgba(0,0,0,0.08); margin: 14px 0;">
+            <h5 style="margin-bottom:8px; font-weight:800;">Detailed Technical Evaluation Rationale:</h5>
             {"".join([f"<p style='margin-bottom:6px;'>• {r}</p>" for r in reasons])}
         </div>
         """, unsafe_allow_html=True)
 
-        # Interactive High-End Candlestick Chart
-        st.subheader("📊 Live OLED Interactive Price Chart")
+        # High-Contrast Light Candlestick Chart
+        st.subheader("📊 Interactive Candlestick Chart (INR)")
         
         fig = go.Figure()
         fig.add_trace(go.Candlestick(
             x=df.index,
-            open=df['Open'],
-            high=df['High'],
-            low=df['Low'],
-            close=df['Close'],
-            name="Candlestick",
+            open=df['Open'], high=df['High'],
+            low=df['Low'], close=df['Close'],
+            name="Price (₹)",
             increasing_line_color='#10b981',
             decreasing_line_color='#ef4444',
             increasing_fillcolor='#10b981',
@@ -350,148 +375,155 @@ if navigation == "📈 Live Stock Analyzer & AI Signals":
         ))
         
         if 'SMA_50' in df.columns:
-            fig.add_trace(go.Scatter(x=df.index, y=df['SMA_50'], line=dict(color='#38bdf8', width=1.5), name="50-Day SMA"))
+            fig.add_trace(go.Scatter(x=df.index, y=df['SMA_50'], line=dict(color='#2563eb', width=1.5), name="50-Day SMA"))
         if 'Upper_Band' in df.columns:
-            fig.add_trace(go.Scatter(x=df.index, y=df['Upper_Band'], line=dict(color='#a855f7', width=1, dash='dot'), name="Upper Bollinger"))
-            fig.add_trace(go.Scatter(x=df.index, y=df['Lower_Band'], line=dict(color='#a855f7', width=1, dash='dot'), name="Lower Bollinger"))
+            fig.add_trace(go.Scatter(x=df.index, y=df['Upper_Band'], line=dict(color='#9333ea', width=1, dash='dot'), name="Upper Bollinger"))
+            fig.add_trace(go.Scatter(x=df.index, y=df['Lower_Band'], line=dict(color='#9333ea', width=1, dash='dot'), name="Lower Bollinger"))
 
         fig.update_layout(
-            paper_bgcolor="#030407",
-            plot_bgcolor="#0a0d14",
-            xaxis=dict(gridcolor="#1e293b", rangeslider=dict(visible=False)),
-            yaxis=dict(gridcolor="#1e293b"),
-            font=dict(color="#cbd5e1", family="Inter"),
-            margin=dict(l=20, r=20, t=30, b=20),
-            height=500
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#f8fafc",
+            xaxis=dict(gridcolor="#e2e8f0", rangeslider=dict(visible=False)),
+            yaxis=dict(gridcolor="#e2e8f0", title="Price in INR (₹)"),
+            font=dict(color="#0f172a", family="Inter"),
+            margin=dict(l=10, r=10, t=20, b=10),
+            height=480
         )
         st.plotly_chart(fig, use_container_width=True)
 
 # ---------------------------------------------------------
-# MODULE 2: IPO Tracker & GMP Suggestions
+# MODULE 2: Indian IPO Tracker & GMP Suggestions
 # ---------------------------------------------------------
-elif navigation == "🚀 IPO Tracker & GMP Suggestions":
-    st.markdown('<div class="brand-title">🚀 IPO Intelligence & GMP Tracker</div>', unsafe_allow_html=True)
-    st.caption("Live Grey Market Premium (GMP) updates, subscription ratios, and AI application recommendations.")
+elif navigation == "🚀 Indian IPO Tracker & GMP":
+    st.markdown('<div class="brand-title">🚀 Indian IPO Tracker & Grey Market Premium (GMP)</div>', unsafe_allow_html=True)
+    st.caption("Mainboard and SME IPO intelligence, live GMP estimates in ₹, lot sizes, and application suggestions.")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Mock/Live Data Structure for Upcoming & Recent IPOs
-    ipo_data = [
-        {"Company": "AuraTech Quantum AI", "Price Band": "$120 - $128", "GMP ($)": "+$42", "Est Profit %": "+32.8%", "Subscription": "48.2x", "Risk": "Low", "Verdict": "APPLY (STRONG)"},
-        {"Company": "NexGen Battery Systems", "Price Band": "$85 - $90", "GMP ($)": "+$18", "Est Profit %": "+20.0%", "Subscription": "18.5x", "Risk": "Moderate", "Verdict": "APPLY"},
-        {"Company": "OmniLogistics Global", "Price Band": "$45 - $48", "GMP ($)": "-$2", "Est Profit %": "-4.1%", "Subscription": "0.8x", "Risk": "High", "Verdict": "AVOID"},
-        {"Company": "CloudScale Security", "Price Band": "$210 - $225", "GMP ($)": "+$65", "Est Profit %": "+28.8%", "Subscription": "32.1x", "Risk": "Low", "Verdict": "APPLY (STRONG)"},
-        {"Company": "UrbanRetail Properties", "Price Band": "$30 - $32", "GMP ($)": "+$1", "Est Profit %": "+3.1%", "Subscription": "1.2x", "Risk": "High", "Verdict": "AVOID"},
+    # Representative Data for Indian Mainboard & SME IPOs
+    indian_ipo_data = [
+        {"Company": "Tata EV Systems Ltd", "Issue Size": "₹3,200 Cr", "Price Band": "₹450 - ₹475", "Lot Size": "31 Shares", "Est. GMP (₹)": "+₹145", "Est. Gain %": "+30.5%", "Subscription": "42.5x", "Verdict": "APPLY (STRONG)"},
+        {"Company": "PharmaGen India", "Price Band": "₹210 - ₹225", "Issue Size": "₹850 Cr", "Lot Size": "65 Shares", "Est. GMP (₹)": "+₹38", "Est. Gain %": "+16.8%", "Subscription": "14.2x", "Verdict": "APPLY"},
+        {"Company": "Bharat Logistics Hub", "Price Band": "₹110 - ₹118", "Issue Size": "₹420 Cr", "Lot Size": "120 Shares", "Est. GMP (₹)": "-₹4", "Est. Gain %": "-3.3%", "Subscription": "0.9x", "Verdict": "AVOID"},
+        {"Company": "Swastik Renewables (SME)", "Price Band": "₹85 - ₹90", "Issue Size": "₹65 Cr", "Lot Size": "1600 Shares", "Est. GMP (₹)": "+₹52", "Est. Gain %": "+57.7%", "Subscription": "88.4x", "Verdict": "APPLY (STRONG)"},
+        {"Company": "UrbanInfra Housing", "Price Band": "₹60 - ₹64", "Issue Size": "₹280 Cr", "Lot Size": "230 Shares", "Est. GMP (₹)": "+₹2", "Est. Gain %": "+3.1%", "Subscription": "1.4x", "Verdict": "AVOID"}
     ]
     
-    ipo_df = pd.DataFrame(ipo_data)
+    ipo_df = pd.DataFrame(indian_ipo_data)
     
-    col_ipo1, col_ipo2 = st.columns([2, 1])
-    
-    with col_ipo1:
-        st.subheader("🔥 Featured Upcoming & Active IPOs")
-        st.dataframe(ipo_df, use_container_width=True, height=280)
+    c_ipo1, c_ipo2 = st.columns([2, 1])
+    with c_ipo1:
+        st.subheader("🔥 Active & Upcoming Indian IPOs")
+        st.dataframe(ipo_df, use_container_width=True, height=270)
         
-    with col_ipo2:
+    with c_ipo2:
         st.markdown("""
-        <div class="glass-card">
-            <h4 style="margin-bottom: 8px;">💡 AI Application Rules</h4>
-            <p style="font-size: 0.88rem; color: #94a3b8;">
-                <b>• GMP > +20%:</b> High probability of listing gains; recommended for listing profit.<br><br>
-                <b>• Subscription > 15x:</b> Strong institutional demand backing.<br><br>
-                <b>• Negative GMP:</b> Indicates expected listing loss; stay away.
+        <div class="glass-card-light">
+            <h4 style="margin-bottom:10px; font-weight:800; color:#0f172a;">💡 IPO Application Rules</h4>
+            <p style="font-size:0.88rem; color:#475569; line-height:1.6;">
+                <b>• Estimated GMP > 20%:</b> High probability of listing day gains. Apply for listing profits.<br>
+                <b>• Overall Subscription > 15x:</b> Strong Institutional (QIB) demand backing.<br>
+                <b>• Negative / Flat GMP:</b> Risk of listing discount; avoid retail allotment.
             </p>
         </div>
         """, unsafe_allow_html=True)
 
     st.markdown("---")
-    st.subheader("🎯 Individual IPO Analysis Inspector")
+    st.subheader("🔍 Selected IPO Cost & Lot Inspector")
     
-    selected_ipo = st.selectbox("Select IPO for Breakdown:", ipo_df["Company"].tolist())
+    selected_ipo = st.selectbox("Select IPO for Detailed Estimate:", ipo_df["Company"].tolist())
     details = ipo_df[ipo_df["Company"] == selected_ipo].iloc[0]
     
     d1, d2, d3, d4 = st.columns(4)
     with d1:
-        st.markdown(f'<div class="glass-card"><b>PRICE BAND</b><h4>{details["Price Band"]}</h4></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="glass-card-light"><span style="color:#64748b; font-size:0.8rem; font-weight:700;">PRICE BAND</span><h4>{details["Price Band"]}</h4></div>', unsafe_allow_html=True)
     with d2:
-        st.markdown(f'<div class="glass-card"><b>EXPECTED GMP</b><h4 style="color:#10b981;">{details["GMP ($)"]}</h4></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="glass-card-light"><span style="color:#64748b; font-size:0.8rem; font-weight:700;">ESTIMATED GMP</span><h4 style="color:#10b981;">{details["Est. GMP (₹)"]}</h4></div>', unsafe_allow_html=True)
     with d3:
-        color = "#10b981" if "-" not in details["Est Profit %"] else "#ef4444"
-        st.markdown(f'<div class="glass-card"><b>ESTIMATED RETURN</b><h4 style="color:{color};">{details["Est Profit %"]}</h4></div>', unsafe_allow_html=True)
+        color = "#10b981" if "-" not in details["Est. Gain %"] else "#ef4444"
+        st.markdown(f'<div class="glass-card-light"><span style="color:#64748b; font-size:0.8rem; font-weight:700;">EST. LISTING RETURN</span><h4 style="color:{color};">{details["Est. Gain %"]}</h4></div>', unsafe_allow_html=True)
     with d4:
-        st.markdown(f'<div class="glass-card"><b>VERDICT</b><h4>{details["Verdict"]}</h4></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="glass-card-light"><span style="color:#64748b; font-size:0.8rem; font-weight:700;">SUGGESTION</span><h4>{details["Verdict"]}</h4></div>', unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# MODULE 3: Interactive Wealth Planner
+# MODULE 3: INR SIP & Wealth Planner
 # ---------------------------------------------------------
-elif navigation == "💰 Interactive Wealth Planner":
-    st.markdown('<div class="brand-title">💰 Interactive Investment & Wealth Planner</div>', unsafe_allow_html=True)
-    st.caption("Simulate systematic compounding growth, calculate exact profit projections, and plan financial independence.")
+elif navigation == "💰 INR SIP & Wealth Planner":
+    st.markdown('<div class="brand-title">💰 Indian Rupee (₹) SIP & Wealth Planner</div>', unsafe_allow_html=True)
+    st.caption("Calculate compounding growth in ₹ Lakhs & Crores for Indian equity mutual funds and stocks.")
     st.markdown("<br>", unsafe_allow_html=True)
     
-    c_plan1, c_plan2 = st.columns([1, 2])
+    col_w1, col_w2 = st.columns([1, 2])
     
-    with c_plan1:
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        st.subheader("🎛️ Growth Parameters")
+    with col_w1:
+        st.markdown('<div class="glass-card-light">', unsafe_allow_html=True)
+        st.subheader("🎛️ Investment Parameters")
         
-        investment_type = st.radio("Plan Type:", ["Monthly SIP", "Lump Sum Deposit"])
-        monthly_amount = st.slider("Monthly Investment ($):", min_value=100, max_value=20000, value=1000, step=100)
-        years = st.slider("Investment Horizon (Years):", min_value=1, max_value=35, value=10)
-        expected_cagr = st.slider("Expected Annual CAGR Return (%):", min_value=1.0, max_value=30.0, value=12.0, step=0.5)
+        plan_type = st.radio("Investment Mode:", ["Monthly SIP (Rupees)", "One-Time Lumpsum (Rupees)"])
+        
+        if plan_type == "Monthly SIP (Rupees)":
+            monthly_sip = st.slider("Monthly SIP Amount (₹):", min_value=500, max_value=200000, value=15000, step=500)
+            invest_amount = monthly_sip
+        else:
+            lumpsum = st.slider("Lumpsum Investment (₹):", min_value=10000, max_value=5000000, value=250000, step=10000)
+            invest_amount = lumpsum
+            
+        years = st.slider("Time Horizon (Years):", min_value=1, max_value=35, value=15)
+        cagr = st.slider("Expected Annual Return / CAGR (%):", min_value=4.0, max_value=30.0, value=13.5, step=0.5)
         st.markdown('</div>', unsafe_allow_html=True)
-        
-    # Compounding Calculation Logic
+
+    # Compounding Calculation
     months = years * 12
-    rate_monthly = (expected_cagr / 100) / 12
+    monthly_rate = (cagr / 100) / 12
     
     timeline = list(range(1, months + 1))
-    invested_data = []
-    wealth_data = []
+    invested_list = []
+    wealth_list = []
     
     current_wealth = 0
     total_invested = 0
     
     for m in timeline:
-        if investment_type == "Monthly SIP":
-            total_invested += monthly_amount
-            current_wealth = (current_wealth + monthly_amount) * (1 + rate_monthly)
+        if plan_type == "Monthly SIP (Rupees)":
+            total_invested += invest_amount
+            current_wealth = (current_wealth + invest_amount) * (1 + monthly_rate)
         else:
             if m == 1:
-                total_invested = monthly_amount
-                current_wealth = monthly_amount
-            current_wealth = current_wealth * (1 + rate_monthly)
+                total_invested = invest_amount
+                current_wealth = invest_amount
+            current_wealth = current_wealth * (1 + monthly_rate)
             
-        invested_data.append(total_invested)
-        wealth_data.append(current_wealth)
+        invested_list.append(total_invested)
+        wealth_list.append(current_wealth)
         
     profit_generated = current_wealth - total_invested
-    
-    with c_plan2:
-        res1, res2, res3 = st.columns(3)
-        with res1:
-            st.markdown(f'<div class="glass-card"><b>TOTAL INVESTED</b><h3 style="color:#94a3b8;">${total_invested:,.0f}</h3></div>', unsafe_allow_html=True)
-        with res2:
-            st.markdown(f'<div class="glass-card"><b>PROFIT GENERATED</b><h3 style="color:#10b981;">+${profit_generated:,.0f}</h3></div>', unsafe_allow_html=True)
-        with res3:
-            st.markdown(f'<div class="glass-card"><b>FUTURE WEALTH</b><h3 style="color:#38bdf8;">${current_wealth:,.0f}</h3></div>', unsafe_allow_html=True)
-            
-        # Wealth Growth Projection Plot
-        df_plan = pd.DataFrame({
+
+    with col_w2:
+        r1, r2, r3 = st.columns(3)
+        with r1:
+            st.markdown(f'<div class="glass-card-light"><span style="color:#64748b; font-size:0.78rem; font-weight:700;">TOTAL INVESTED</span><h3 style="color:#0f172a; margin-top:4px;">{format_inr(total_invested)}</h3></div>', unsafe_allow_html=True)
+        with r2:
+            st.markdown(f'<div class="glass-card-light"><span style="color:#64748b; font-size:0.78rem; font-weight:700;">ESTIMATED PROFIT</span><h3 style="color:#10b981; margin-top:4px;">+{format_inr(profit_generated)}</h3></div>', unsafe_allow_html=True)
+        with r3:
+            st.markdown(f'<div class="glass-card-light"><span style="color:#64748b; font-size:0.78rem; font-weight:700;">TOTAL WEALTH</span><h3 style="color:#2563eb; margin-top:4px;">{format_inr(current_wealth)}</h3></div>', unsafe_allow_html=True)
+
+        # Growth Plot
+        df_wealth = pd.DataFrame({
             "Month": timeline,
-            "Principal Invested": invested_data,
-            "Total Accumulated Wealth": wealth_data
+            "Total Future Wealth": wealth_list,
+            "Amount Invested": invested_list
         })
         
-        fig_wealth = px.area(
-            df_plan, x="Month", y=["Total Accumulated Wealth", "Principal Invested"],
-            color_discrete_map={"Total Accumulated Wealth": "#10b981", "Principal Invested": "#6366f1"},
-            title="📈 Projected Wealth Accumulation Timeline"
+        fig_w = px.area(
+            df_wealth, x="Month", y=["Total Future Wealth", "Amount Invested"],
+            color_discrete_map={"Total Future Wealth": "#10b981", "Amount Invested": "#6366f1"},
+            title="📈 Projected Wealth Accumulation Curve (INR)"
         )
-        fig_wealth.update_layout(
-            paper_bgcolor="#030407",
-            plot_bgcolor="#0a0d14",
-            xaxis=dict(gridcolor="#1e293b"),
-            yaxis=dict(gridcolor="#1e293b"),
-            font=dict(color="#cbd5e1")
+        fig_w.update_layout(
+            paper_bgcolor="#ffffff",
+            plot_bgcolor="#f8fafc",
+            xaxis=dict(gridcolor="#e2e8f0"),
+            yaxis=dict(gridcolor="#e2e8f0", title="Value in INR (₹)"),
+            font=dict(color="#0f172a", family="Inter"),
+            height=420
         )
-        st.plotly_chart(fig_wealth, use_container_width=True)
+        st.plotly_chart(fig_w, use_container_width=True)
